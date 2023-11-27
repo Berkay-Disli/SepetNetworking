@@ -1,5 +1,5 @@
 //
-//  APIManager.swift
+//  SepetManager.swift
 //  
 //
 //  Created by Berkay Dişli on 27.11.2023.
@@ -8,19 +8,19 @@
 import Foundation
 
 public typealias ResultCompletion<T> = (CustomResult<T>) -> Void
-public typealias CustomResult<T> = Result<T?, CustomErrors>
+public typealias CustomResult<T> = Result<T?, SepetErrors>
 
-public final class APIManager {
+public final class SepetManager {
     
-    static let shared = APIManager()
+    static let shared = SepetManager()
     
     public init() {}
     
-    static var sharedHeaders : HTTPHeaders {
+    public static var sharedHeaders : SepetHTTPHeaders {
         ["Content-Type": "application/json"]
     }
     
-    public func request<T: Codable>(endpoint: EndPoint, completion: @escaping ResultCompletion<T>) {
+    public func request<T: Codable>(endpoint: SepetEndPoint, completion: @escaping ResultCompletion<T>) {
         guard let _ = endpoint.url else {
             completion(.failure(.invalidURL))
             return
@@ -61,8 +61,14 @@ public final class APIManager {
     }
 }
 
+extension SepetManager {
+    public func createEndpoint(path: String, baseURL: String, method: SepetHTTPMethods, headers: SepetHTTPHeaders? = nil, parameters: [String: String]? = nil, parametersEncoding: SepetParametersEncoding? = .url) -> SepetEndPoint {
+        return GenericEndPoint(path: path, baseURL: baseURL, method: method, headers: headers, parameters: parameters, parametersEncoding: parametersEncoding)
+    }
+}
+
 public extension URLRequest {
-    init(endpoint: EndPoint) {
+    init(endpoint: SepetEndPoint) {
         var component = URLComponents(string: endpoint.url!.absoluteString)!
         
         if let parameters = endpoint.parameters, let encoding = endpoint.parametersEncoding {
@@ -103,3 +109,4 @@ public extension Data {
         debugPrint(prettyPrintedString)
     }
 }
+
